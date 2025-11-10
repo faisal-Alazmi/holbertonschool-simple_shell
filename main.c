@@ -1,19 +1,18 @@
 #include "shell.h"
+
 /**
- * main - Entry point for the simple shell (Task 1 skeleton)
+ * main - Entry point for the simple shell (Task 0.2)
  * @ac: argument count (unused)
- * @av: argument vector (unused)
+ * @av: argument vector (progname used)
  *
- * Return: 0 on success
+ * Return: last command exit status
  */
 int main(int ac, char **av)
 {
 	(void)ac;
-	(void)av;
-
-	/* Will implement the loop in Task 2 */
-	return (0);
+	return (run_shell_loop(av[0]));
 }
+
 /**
  * run_shell_loop - handles interactive and non-interactive shell loop
  * @progname: program name (used in error messages)
@@ -37,7 +36,7 @@ int run_shell_loop(char *progname)
 		{
 			if (interactive)
 				write(STDOUT_FILENO, "\n", 1);
-			break; /* EOF (Ctrl+D) */
+			break; /* EOF (Ctrl+D or end of pipe) */
 		}
 
 		line_no++;
