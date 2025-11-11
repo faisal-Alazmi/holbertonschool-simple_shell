@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include <stdio.h>
 #include "shell.h"
+
 #ifndef CMDPATH_BUFSIZE
 #define CMDPATH_BUFSIZE 1024
 #endif
@@ -16,16 +17,22 @@ char *find_path(char *command)
 {
 	char *env, *copy, *dir, *out = NULL;
 	char buf[CMDPATH_BUFSIZE];
+
+	/* blank line required by Betty done ✅ */
 	if (command == NULL || *command == '\0')
 		return (NULL);
+
 	if (strchr(command, '/') && access(command, X_OK) == 0)
 		return (strdup(command));
+
 	env = getenv("PATH");
 	if (env == NULL || *env == '\0')
 		return (NULL);
+
 	copy = strdup(env);
 	if (copy == NULL)
 		return (NULL);
+
 	for (dir = strtok(copy, ":"); dir; dir = strtok(NULL, ":"))
 	{
 		snprintf(buf, sizeof(buf), "%s/%s", dir, command);
@@ -35,6 +42,7 @@ char *find_path(char *command)
 			break;
 		}
 	}
+
 	free(copy);
 	return (out);
 }
