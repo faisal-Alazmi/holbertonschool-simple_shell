@@ -1,0 +1,24 @@
+.TH simple_shell 1 "November 2025" "Holberton School" "User Commands"
+.SH NAME
+simple_shell \- simple UNIX command line interpreter
+.SH SYNOPSIS
+.B ./hsh
+.br
+.B simple_shell
+.SH DESCRIPTION
+A minimal UNIX command interpreter written in C. It runs in interactive and
+non-interactive modes and executes programs via execve(2).
+.SH EXAMPLES
+.nf
+$ ./hsh
+($) /bin/ls
+($) exit
+.fi
+.PP
+.nf
+$ echo "/bin/ls" | ./hsh
+.fi
+.SH AUTHORS
+See the AUTHORS file.
+.SH SEE ALSO
+sh(1), execve(2), fork(2), waitpid(2)
