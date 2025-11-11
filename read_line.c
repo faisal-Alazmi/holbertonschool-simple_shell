@@ -1,24 +1,19 @@
 #include "shell.h"
 
 /**
- * read_line - reads one line from stdin using getline
+ * read_line - Read user input using getline
  *
- * Return: pointer to string without newline, or NULL on EOF/error
+ * Return: pointer to allocated input string, or NULL on EOF
  */
 char *read_line(void)
 {
-	char *line = NULL;
-	size_t n = 0;
-	ssize_t r = getline(&line, &n, stdin);
+    char *line = NULL;
+    size_t len = 0;
 
-	if (r == -1)
-	{
-		free(line);
-		return (NULL);
-	}
-
-	if (r > 0 && line[r - 1] == '\n')
-		line[r - 1] = '\0';
-
-	return (line);
+    if (getline(&line, &len, stdin) == -1)
+    {
+        free(line);
+        return (NULL);
+    }
+    return (line);
 }
