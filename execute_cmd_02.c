@@ -4,34 +4,39 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 
-int handle_builtin(char **args); // forward declaration
+int handle_builtin(char **args); /* forward declaration */
 
-void execute_cmd_02(char **args)
+int execute_cmd_02(char **args)
 {
-    if (args == NULL || args[0] == NULL)
-        return;
+    int builtin_status;
+    pid_t pid;
+    int status;
 
-    int builtin_status = handle_builtin(args);
+    if (args == NULL || args[0] == NULL)
+        return -1;
+
+    builtin_status = handle_builtin(args);
 
     if (builtin_status != -1)
-        return; // built-in executed
+        return 0; /* built-in executed */
 
-    pid_t pid = fork();
+    pid = fork();
 
     if (pid == -1)
     {
         perror("fork failed");
-        return;
+        return -1;
     }
-    else if (pid == 0) // child process
+    else if (pid == 0) /* child process */
     {
         execvp(args[0], args);
-        perror("execvp failed"); // only reached if exec fails
+        perror("execvp failed"); /* only reached if exec fails */
         exit(EXIT_FAILURE);
     }
-    else // parent process
+    else /* parent process */
     {
-        int status;
         waitpid(pid, &status, 0);
     }
+
+    return 0;
 }
