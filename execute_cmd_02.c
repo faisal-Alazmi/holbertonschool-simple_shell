@@ -1,4 +1,3 @@
-#include "shell.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -10,6 +9,8 @@ char *find_command(char *cmd);
 int execute_cmd_02(char *progname, char **argv, int line_no)
 {
     char *cmd_path;
+
+    (void)line_no;  /* suppress unused parameter warning */
 
     if (!argv || !argv[0])
     {
@@ -30,6 +31,6 @@ int execute_cmd_02(char *progname, char **argv, int line_no)
 
     /* If execvp returns, there was an error */
     perror("execvp");
-    free(cmd_path);  // only if your find_command allocates memory
+    free(cmd_path);  /* only if your find_command allocates memory */
     return -1;
 }
