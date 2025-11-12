@@ -1,13 +1,25 @@
-#include <unistd.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 /**
- * write_num - placeholder function to write an integer to stdout
- * @n: integer to write (unused)
+ * print_error - prints a custom error message to stderr
+ * @msg: the error message
  */
-static void write_num(int n)
+void print_error(const char *msg)
 {
-	char buf[12];
+	if (msg)
+	{
+		fprintf(stderr, "%s\n", msg);
+	}
+}
 
-	(void)n;
-	(void)buf;
+/**
+ * exit_error - prints an error message and exits the program
+ * @msg: the error message
+ * @code: exit code
+ */
+void exit_error(const char *msg, int code)
+{
+	print_error(msg);
+	exit(code);
 }
