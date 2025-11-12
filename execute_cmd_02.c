@@ -27,23 +27,26 @@ static char *trim(char *str)
     return str;
 }
 
-/* Placeholder for finding full command path */
+/* Finds full path (placeholder, just returns command) */
 static char *find_command(char *command)
 {
     return command;
 }
 
-/* Return codes:
- * 0 = continue shell
- * 1 = external command error
- * 2 = exit shell
+/**
+ * execute_cmd_02 - execute command or handle built-in
+ *
+ * Return codes:
+ *  0 - continue shell
+ *  1 - external command error
+ *  2 - exit shell
  */
 int execute_cmd_02(char *progname, char **argv, int line_no)
 {
     pid_t pid;
-    int status;
-    char *cmd;
-    char *cmd_path;
+    int status = 0;
+    static int last_status = 0;
+    char *cmd, *cmd_path;
 
     (void)progname;
     (void)line_no;
@@ -52,17 +55,18 @@ int execute_cmd_02(char *progname, char **argv, int line_no)
     if (!cmd)
         return 0;
 
-    /* Handle built-in exit */
+    /* Built-in: exit */
     if (strcmp(cmd, "exit") == 0)
     {
-        /* Do not print anything for exit without arguments */
-        return 2;  /* signal shell driver to exit */
+        /* Exit with the status of the last command */
+        exit(last_status);
     }
 
     cmd_path = find_command(cmd);
     if (!cmd_path)
     {
         fprintf(stderr, "%s: command not found\n", argv[0]);
+        last_status = 127;
         return 1;
     }
 
@@ -70,6 +74,7 @@ int execute_cmd_02(char *progname, char **argv, int line_no)
     if (pid < 0)
     {
         perror("fork");
+        last_status = 1;
         return 1;
     }
 
@@ -82,6 +87,11 @@ int execute_cmd_02(char *progname, char **argv, int line_no)
     else
     {
         waitpid(pid, &status, 0);
+
+        if (WIFEXITED(status))
+            last_status = WEXITSTATUS(status);
+        else
+            last_status = 1;
     }
 
     return 0;
