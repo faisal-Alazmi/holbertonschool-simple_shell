@@ -3,6 +3,45 @@
 #include <string.h>
 
 /**
+ * init_argv - allocates initial token array
+ * @cap: initial capacity of the array
+ *
+ * Return: pointer to array or NULL on failure
+ */
+static char **init_argv(size_t cap)
+{
+	char **argv;
+
+	argv = malloc(sizeof(char *) * cap);
+	if (!argv)
+		return (NULL);
+
+	return (argv);
+}
+
+/**
+ * finalize_tokens - null-terminates array and frees work buffer
+ * @argv: token array
+ * @i: number of tokens
+ * @work: duplicated input string
+ *
+ * Return: argv if tokens exist, NULL if none
+ */
+static char **finalize_tokens(char **argv, size_t i, char *work)
+{
+	argv[i] = NULL;
+	free(work);
+
+	if (i == 0)
+	{
+		free(argv);
+		return (NULL);
+	}
+
+	return (argv);
+}
+
+/**
  * tokenize - splits a string into an array of tokens
  * @line: the input string to tokenize
  *
@@ -21,7 +60,7 @@ char **tokenize(char *line)
 	if (!line)
 		return (NULL);
 
-	argv = malloc(sizeof(char *) * cap);
+	argv = init_argv(cap);
 	if (!argv)
 		return (NULL);
 
@@ -45,14 +84,5 @@ char **tokenize(char *line)
 		tok = strtok(NULL, " \t");
 	}
 
-	argv[i] = NULL;
-	free(work);
-
-	if (i == 0)
-	{
-		free(argv);
-		return (NULL);
-	}
-
-	return (argv);
+	return finalize_tokens(argv, i, work);
 }
