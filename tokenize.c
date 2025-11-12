@@ -2,44 +2,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-/**
- * init_argv - allocates initial token array
- * @cap: initial capacity of the array
- *
- * Return: pointer to array or NULL on failure
- */
-static char **init_argv(size_t cap)
-{
-	char **argv;
-
-	argv = malloc(sizeof(char *) * cap);
-	if (!argv)
-		return (NULL);
-
-	return (argv);
-}
-
-/**
- * finalize_tokens - null-terminates array and frees work buffer
- * @argv: token array
- * @i: number of tokens
- * @work: duplicated input string
- *
- * Return: argv if tokens exist, NULL if none
- */
-static char **finalize_tokens(char **argv, size_t i, char *work)
-{
-	argv[i] = NULL;
-	free(work);
-
-	if (i == 0)
-	{
-		free(argv);
-		return (NULL);
-	}
-
-	return (argv);
-}
+char **init_argv(size_t cap);
+char **finalize_tokens(char **argv, size_t i, char *work);
+int add_token(char ***argv, size_t *cap, size_t *i, char *tok);
+void free_argv(char **argv);
 
 /**
  * tokenize - splits a string into an array of tokens
