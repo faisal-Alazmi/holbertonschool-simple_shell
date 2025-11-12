@@ -1,54 +1,41 @@
+#include "shell.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-char **init_argv(size_t cap);
-char **finalize_tokens(char **argv, size_t i, char *work);
-int add_token(char ***argv, size_t *cap, size_t *i, char *tok);
-void free_argv(char **argv);
+#define DELIM " \t\r\n"
 
-/**
- * tokenize - splits a string into an array of tokens
- * @line: the input string to tokenize
- *
- * This function splits a string into separate words using space and tab
- * as delimiters. It returns a NULL-terminated array of strings.
- *
- * Return: pointer to an array of strings (tokens), or NULL on failure
- *         or if no tokens are found.
- */
 char **tokenize(char *line)
 {
-	char *work, *tok;
-	char **argv;
-	size_t cap = 8, i = 0;
+    int bufsize = 64, position = 0;
+    char **tokens = malloc(bufsize * sizeof(char *));
+    char *token;
 
-	if (!line)
-		return (NULL);
+    if (!tokens)
+    {
+        fprintf(stderr, "allocation error\n");
+        exit(EXIT_FAILURE);
+    }
 
-	argv = init_argv(cap);
-	if (!argv)
-		return (NULL);
+    token = strtok(line, DELIM);
+    while (token != NULL)
+    {
+        tokens[position] = token;
+        position++;
 
-	work = strdup(line);
-	if (!work)
-	{
-		free(argv);
-		return (NULL);
-	}
+        if (position >= bufsize)
+        {
+            bufsize += 64;
+            tokens = realloc(tokens, bufsize * sizeof(char *));
+            if (!tokens)
+            {
+                fprintf(stderr, "allocation error\n");
+                exit(EXIT_FAILURE);
+            }
+        }
 
-	tok = strtok(work, " \t");
-	while (tok)
-	{
-		if (!add_token(&argv, &cap, &i, tok))
-		{
-			free_argv(argv);
-			free(work);
-			return (NULL);
-		}
-
-		tok = strtok(NULL, " \t");
-	}
-
-	return (finalize_tokens(argv, i, work));
+        token = strtok(NULL, DELIM);
+    }
+    tokens[position] = NULL;
+    return tokens;
 }

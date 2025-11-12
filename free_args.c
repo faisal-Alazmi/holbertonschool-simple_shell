@@ -1,11 +1,8 @@
 #include "shell.h"
+#include <stdlib.h>
 
-/**
-	* free_args - Free array of arguments
-	* @args: Array to free
-	*/
 void free_args(char **args)
 {
-	if (args)
-	free(args);
+    /* We don’t free the individual strings since tokenize uses strtok */
+    free(args);
 }

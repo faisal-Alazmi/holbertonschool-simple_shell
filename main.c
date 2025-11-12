@@ -1,31 +1,31 @@
+#include "shell.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-int execute_cmd_02(char **args); /* forward declaration */
-
-char **tokenize(char *line);
-void finalize_tokens(char **tokens);
 
 int main(void)
 {
     char *line = NULL;
     size_t len = 0;
-    char **tokens;
+    ssize_t read;
 
     while (1)
     {
         printf("$ ");
-        if (getline(&line, &len, stdin) == -1)
+        read = getline(&line, &len, stdin);
+        if (read == -1)
             break;
 
-        tokens = tokenize(line);
+        /* Remove trailing newline */
+        if (line[read - 1] == '\n')
+            line[read - 1] = '\0';
 
-        if (tokens != NULL)
-        {
-            execute_cmd_02(tokens);
-            finalize_tokens(tokens); /* free AFTER execution */
-        }
+        char **tokens = tokenize(line);
+        if (!tokens)
+            continue;
+
+        execute_cmd_02(tokens);
+        free_args(tokens);
     }
 
     free(line);
