@@ -55,17 +55,8 @@ int execute_cmd_02(char *progname, char **argv, int line_no)
     /* Handle built-in exit */
     if (strcmp(cmd, "exit") == 0)
     {
-        if (!argv[1])
-        {
-            /* Exit without argument, checker expects stdout "OK" */
-            printf("OK\n");
-            return 2;  /* signal shell driver to exit */
-        }
-        else
-        {
-            /* Exit with a status argument */
-            return 2;  /* signal shell driver to exit */
-        }
+        /* Do not print anything for exit without arguments */
+        return 2;  /* signal shell driver to exit */
     }
 
     cmd_path = find_command(cmd);
