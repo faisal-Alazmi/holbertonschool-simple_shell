@@ -33,4 +33,9 @@ int run_shell_loop(char *progname);
  *
  * Return: Exit status code
  */
-int execute_cmd_02(char *progname, char **argv*
+int execute_cmd_02(char *progname, char **argv, int line_no);
+
+/* Built-ins handling */
+int handle_builtin(char **argv);
+
+#endif /* SHELL_H */
