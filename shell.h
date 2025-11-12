@@ -33,16 +33,4 @@ int run_shell_loop(char *progname);
  *
  * Return: Exit status code
  */
-int execute_cmd_02(char *progname, char **argv, int line_no);
-
-/* Built-ins handling */
-int handle_builtin(char **argv);
-
-/* PATH resolution */
-char *find_path(char *command);
-
-/* ========= Errors ========= */
-void print_nf_error(const char *prog, int line_no, const char *cmd);
-void print_noent_error(const char *prog, int line_no, const char *cmd);
-
-#endif /* SHELL_H */
+int execute_cmd_02(char *progname, char **argv*

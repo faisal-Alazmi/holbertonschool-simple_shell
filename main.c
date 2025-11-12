@@ -1,13 +1,17 @@
 #include "shell.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 
 int main(void)
 {
-    char *line = NULL;
-    size_t len = 0;
+    char *line;
+    size_t len;
     ssize_t read;
+    char **tokens;
+    int line_no = 0;
+
+    line = NULL;
+    len = 0;
 
     while (1)
     {
@@ -16,16 +20,16 @@ int main(void)
         if (read == -1)
             break;
 
-        /* Remove trailing newline */
         if (line[read - 1] == '\n')
             line[read - 1] = '\0';
 
-        char **tokens = tokenize(line);
+        tokens = tokenize(line);
         if (!tokens)
             continue;
 
-        execute_cmd_02(tokens);
+        execute_cmd_02("hsh", tokens, line_no);
         free_args(tokens);
+        line_no++;
     }
 
     free(line);

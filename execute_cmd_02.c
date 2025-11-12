@@ -5,14 +5,15 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 
-int execute_cmd_02(char **args)
+int execute_cmd_02(char *progname, char **argv, int line_no)
 {
-    int builtin_status = handle_builtin(args);
-    if (builtin_status != -1)
-        return builtin_status;
-
+    int builtin_status;
     pid_t pid;
     int status;
+
+    builtin_status = handle_builtin(argv);
+    if (builtin_status != -1)
+        return builtin_status;
 
     pid = fork();
     if (pid < 0)
@@ -22,7 +23,7 @@ int execute_cmd_02(char **args)
     }
     if (pid == 0)
     {
-        execvp(args[0], args);
+        execvp(argv[0], argv);
         perror("execvp failed");
         exit(1);
     }
