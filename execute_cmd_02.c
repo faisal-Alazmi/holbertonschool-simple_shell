@@ -13,12 +13,14 @@ static char *trim(char *str)
     if (!str)
         return NULL;
 
+    /* Trim leading spaces */
     while (*str && (*str == ' ' || *str == '\t'))
         str++;
 
     if (*str == 0)
         return NULL;
 
+    /* Trim trailing spaces */
     end = str + strlen(str) - 1;
     while (end > str && (*end == ' ' || *end == '\t'))
         end--;
@@ -27,18 +29,15 @@ static char *trim(char *str)
     return str;
 }
 
-/* Simplified find_command: returns NULL if PATH empty and command has no '/' */
+/* Simplified find_command for empty PATH test */
 static char *find_command(char *command)
 {
-    char *path = ""; /* Assume PATH is empty for test */
-
+    /* If command contains '/', treat as path */
     if (strchr(command, '/'))
-        return command; /* absolute or relative path */
+        return command;
 
-    if (!path || path[0] == '\0')
-        return NULL; /* PATH empty → cannot find command */
-
-    return command; /* For normal PATH, you would search directories */
+    /* PATH is empty, cannot find command */
+    return NULL;
 }
 
 int execute_cmd_02(char *progname, char **argv, int line_no)
@@ -46,6 +45,7 @@ int execute_cmd_02(char *progname, char **argv, int line_no)
     pid_t pid;
     int status;
     char *cmd;
+    char *cmd_path;
 
     (void)progname;
 
@@ -53,7 +53,7 @@ int execute_cmd_02(char *progname, char **argv, int line_no)
     if (!cmd)
         return 0;
 
-    char *cmd_path = find_command(cmd);
+    cmd_path = find_command(cmd);
     if (!cmd_path)
     {
         fprintf(stderr, "./hsh: %d: %s: not found\n", line_no, cmd);
