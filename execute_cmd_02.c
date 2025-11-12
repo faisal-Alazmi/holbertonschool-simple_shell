@@ -14,14 +14,12 @@ static char *trim(char *str)
     if (!str)
         return NULL;
 
-    /* Trim leading spaces */
     while (*str && (*str == ' ' || *str == '\t'))
         str++;
 
-    if (*str == 0)  /* empty string */
+    if (*str == 0)  // empty string
         return NULL;
 
-    /* Trim trailing spaces */
     end = str + strlen(str) - 1;
     while (end > str && (*end == ' ' || *end == '\t'))
         end--;
@@ -30,13 +28,16 @@ static char *trim(char *str)
     return str;
 }
 
-/* Finds the full path of a command using PATH */
+/* Find full path of a command using PATH */
 static char *find_command(char *command)
 {
     struct stat st;
     char *path_env, *path_copy, *dir, *full_path;
 
-    /* If command contains '/', treat as absolute or relative path */
+    if (!command)
+        return NULL;
+
+    /* If command contains '/', treat as absolute/relative path */
     if (strchr(command, '/'))
     {
         if (stat(command, &st) == 0)
@@ -61,12 +62,15 @@ static char *find_command(char *command)
             free(path_copy);
             return NULL;
         }
+
         sprintf(full_path, "%s/%s", dir, command);
+
         if (stat(full_path, &st) == 0)
         {
             free(path_copy);
             return full_path;
         }
+
         free(full_path);
         dir = strtok(NULL, ":");
     }
@@ -75,6 +79,14 @@ static char *find_command(char *command)
     return NULL;
 }
 
+/**
+ * execute_cmd_02 - Execute a command
+ * @progname: shell program name
+ * @argv: arguments array (NULL-terminated)
+ * @line_no: line number (for errors)
+ *
+ * Return: 0 on success, 1 on failure, -1 if 'exit' typed
+ */
 int execute_cmd_02(char *progname, char **argv, int line_no)
 {
     pid_t pid;
@@ -85,37 +97,37 @@ int execute_cmd_02(char *progname, char **argv, int line_no)
     (void)progname;
     (void)line_no;
 
-    cmd = trim(argv[0]);  /* Trim whitespace */
-    if (!cmd)  /* Skip empty lines */
+    if (!argv || !argv[0])
+        return 0;
+
+    cmd = trim(argv[0]);
+    if (!cmd)
         return 0;
 
     /* Handle built-in 'exit' */
     if (strcmp(cmd, "exit") == 0)
-    {
-        int exit_code = 0;
-        if (argv[1])
-            exit_code = atoi(argv[1]);
-        exit(exit_code);
-    }
+        return -1;  // signal to shell loop to exit
 
     cmd_path = find_command(cmd);
     if (!cmd_path)
     {
-        fprintf(stderr, "%s: command not found\n", cmd);
-        return 127;
+        fprintf(stderr, "%s: command not found\n", argv[0]);
+        return 1;
     }
 
     pid = fork();
     if (pid < 0)
     {
         perror("fork");
+        free(cmd_path);
         return 1;
     }
 
     if (pid == 0)
     {
         execvp(cmd_path, argv);
-        _exit(1);  /* do not print "exec failed" */
+        write(2, "exec failed\n", 12);
+        _exit(1);
     }
     else
     {
@@ -123,6 +135,6 @@ int execute_cmd_02(char *progname, char **argv, int line_no)
     }
 
     free(cmd_path);
-    return WIFEXITED(status) ? WEXITSTATUS(status) : 1;
+    return 0;
 }
 
