@@ -4,18 +4,17 @@
 
 int main(void)
 {
-    char *line;
-    size_t len;
+    char *line = NULL;
+    size_t len = 0;
     ssize_t read;
     char **tokens;
     int line_no = 0;
 
-    line = NULL;
-    len = 0;
-
     while (1)
     {
         printf("$ ");
+        fflush(stdout);  /* Ensure prompt is printed immediately */
+
         read = getline(&line, &len, stdin);
         if (read == -1)
             break;
@@ -28,7 +27,7 @@ int main(void)
             continue;
 
         execute_cmd_02("hsh", tokens, line_no);
-        free_args(tokens);
+        free_argv(tokens);
         line_no++;
     }
 
