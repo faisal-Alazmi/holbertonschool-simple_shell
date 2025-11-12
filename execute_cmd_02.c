@@ -14,6 +14,7 @@ int execute_cmd_02(char *progname, char **argv, int line_no)
 	int status;
 	char *path;
 
+	/* Make sure builtins are defined before this function */
 	if (handle_builtin(argv) == 0)
 		return (0);
 
