@@ -2,60 +2,34 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <sys/types.h>
-#include <sys/wait.h>
+#include <string.h>
+
+/* Dummy find_command function, replace with your actual function */
+char *find_command(char *cmd);
 
 int execute_cmd_02(char *progname, char **argv, int line_no)
 {
-    int builtin_status;
-    pid_t pid;
-    int status;
+    char *cmd_path;
 
-    /* Silence unused parameter warnings */
-    (void)progname;
-    (void)line_no;
-
-if (!cmd_path)
-{
-    fprintf(stderr, "%s: command not found\n", args[0]);
-    return;
-}
-
-execvpe(cmd_path, args, environ);
-
-/* If execvpe returns, there was an error */
-perror("execvpe");
-exit(EXIT_FAILURE);
-
-
-
-    /* Handle built-in commands */
-    builtin_status = handle_builtin(argv);
-    if (builtin_status != -1)
-        return builtin_status;
-
-    /* Fork a child to execute external command */
-    pid = fork();
-    if (pid < 0)
+    if (!argv || !argv[0])
     {
-        perror("fork");
+        fprintf(stderr, "%s: invalid command\n", progname);
         return -1;
     }
 
-    if (pid == 0)
+    /* Get the full path to the command */
+    cmd_path = find_command(argv[0]);
+    if (!cmd_path)
     {
-        execvp(argv[0], argv);
-        perror("execvp failed");
-        exit(1);
-    }
-    else
-    {
-        if (waitpid(pid, &status, 0) == -1)
-        {
-            perror("waitpid");
-            return -1;
-        }
+        fprintf(stderr, "%s: %s: command not found\n", progname, argv[0]);
+        return -1;
     }
 
-    return status;  /* Return the exit status of the child */
+    /* Execute the command */
+    execvp(cmd_path, argv);
+
+    /* If execvp returns, there was an error */
+    perror("execvp");
+    free(cmd_path);  // only if your find_command allocates memory
+    return -1;
 }
