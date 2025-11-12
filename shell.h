@@ -47,6 +47,12 @@ int run_shell_loop(char *progname);
 
 /* ========= Execution ========= */
 /**
+/* Built-ins handling */
+int handle_builtin(char **argv);
+
+/* PATH resolution */
+char *find_path(char *command);
+
 	* execute_cmd_02 - Execute command (Task 0.2: support arguments, no PATH)
 	* @progname: Name of shell
 	* @argv: Array of arguments
