@@ -1,22 +1,22 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <sys/wait.h>
+#include "shell.h"
 
 /**
  * run_child - forks and executes a child process
- * @argv: argument vector for the command
+ * @argv: argument vector
  * @progname: program name (unused)
- * @line_no: line number in shell input (unused)
- *
- * Description: forks a child process to run argv[0] if it exists in PATH.
+ * @line_no: line number (unused)
  */
 void run_child(char **argv, char *progname, int line_no)
 {
-	(void)progname;
-	(void)line_no;
-
 	pid_t pid;
 	int status;
+
+	(void)progname;
+	(void)line_no;
 
 	pid = fork();
 	if (pid == -1)
@@ -27,7 +27,6 @@ void run_child(char **argv, char *progname, int line_no)
 
 	if (pid == 0)
 	{
-		/* Child process */
 		if (execvp(argv[0], argv) == -1)
 		{
 			perror("exec failed");
@@ -36,7 +35,6 @@ void run_child(char **argv, char *progname, int line_no)
 	}
 	else
 	{
-		/* Parent process waits for child */
 		wait(&status);
 	}
 }
