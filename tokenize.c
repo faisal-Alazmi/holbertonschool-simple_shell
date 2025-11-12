@@ -50,5 +50,5 @@ char **tokenize(char *line)
 		tok = strtok(NULL, " \t");
 	}
 
-	return finalize_tokens(argv, i, work);
+	return (finalize_tokens(argv, i, work));
 }
