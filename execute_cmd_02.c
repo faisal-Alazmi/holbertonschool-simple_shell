@@ -17,7 +17,7 @@ static char *trim(char *str)
     while (*str && (*str == ' ' || *str == '\t'))
         str++;
 
-    if (*str == 0) /* empty string */
+    if (*str == '\0')  /* empty string */
         return NULL;
 
     /* Trim trailing spaces */
@@ -29,9 +29,10 @@ static char *trim(char *str)
     return str;
 }
 
-/* Finds the full path of a command (stub: just returns the command itself) */
+/* Finds the full path of a command (placeholder, returns command itself) */
 static char *find_command(char *command)
 {
+    /* In a full implementation, search PATH */
     return command;
 }
 
@@ -45,12 +46,11 @@ int execute_cmd_02(char *progname, char **argv, int line_no)
     (void)progname;
     (void)line_no;
 
-    /* Trim whitespace from the command */
     cmd = trim(argv[0]);
     if (!cmd)
         return 0;
 
-    /* Handle built-in "exit" */
+    /* Handle built-in 'exit' */
     if (strcmp(cmd, "exit") == 0)
     {
         int exit_status = 0;
@@ -59,7 +59,6 @@ int execute_cmd_02(char *progname, char **argv, int line_no)
         exit(exit_status);
     }
 
-    /* Find the command path */
     cmd_path = find_command(cmd);
     if (!cmd_path)
     {
@@ -67,7 +66,6 @@ int execute_cmd_02(char *progname, char **argv, int line_no)
         return 1;
     }
 
-    /* Fork and execute the command */
     pid = fork();
     if (pid < 0)
     {
@@ -78,7 +76,8 @@ int execute_cmd_02(char *progname, char **argv, int line_no)
     if (pid == 0)
     {
         execvp(cmd_path, argv);
-        write(2, "exec failed\n", 12);
+        /* Only print error if execvp fails */
+        perror("exec failed");
         _exit(1);
     }
     else
