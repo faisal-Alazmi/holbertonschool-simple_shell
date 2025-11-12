@@ -14,58 +14,69 @@
 #endif
 
 /**
+ * trim_newline - removes trailing newline from a line
+ * @line: input string
+ */
+static void trim_newline(char *line)
+{
+	if (line)
+		line[strcspn(line, "\n")] = '\0';
+}
+
+/**
+ * resize_token_buf - reallocates the token array if needed
+ * @tokens: current token array
+ * @bufsize: pointer to current buffer size
+ *
+ * Return: reallocated token array
+ */
+static char **resize_token_buf(char **tokens, size_t *bufsize)
+{
+	char **tmp;
+
+	*bufsize += MAX_ARGS;
+	tmp = realloc(tokens, (*bufsize) * sizeof(*tokens));
+	if (!tmp)
+	{
+		free(tokens);
+		perror("allocation error");
+		exit(EXIT_FAILURE);
+	}
+	return (tmp);
+}
+
+/**
  * parse_line - Split a line into tokens separated by whitespace.
  * @line: The mutable input string (may be modified by this function).
  *
  * Return: A NULL-terminated array of pointers into @line.
- *         On allocation error, the program exits with failure.
- *
- * Notes:
- * - Returned pointers reference inside @line (via strtok). Do not free @line
- *   until you finish using the returned array. If you need tokens independent
- *   of @line, strdup() each token in the caller.
  */
 char **parse_line(char *line)
 {
-	char **tokens;
-	char **tmp;
-	char *token;
+	char **tokens, *token;
 	const char *delims = " \t\r\n";
-	size_t bufsize = MAX_ARGS, position = 0;
+	size_t bufsize = MAX_ARGS, pos = 0;
 
-	if (line == NULL)
+	if (!line)
 		return (NULL);
 
 	tokens = malloc(bufsize * sizeof(*tokens));
-	if (tokens == NULL)
+	if (!tokens)
 	{
 		perror("allocation error");
 		exit(EXIT_FAILURE);
 	}
 
-	/* Trim trailing newline if present */
-	line[strcspn(line, "\n")] = '\0';
-
+	trim_newline(line);
 	token = strtok(line, delims);
-	while (token != NULL)
-	{
-		tokens[position++] = token;
 
-		if (position >= bufsize)
-		{
-			bufsize += MAX_ARGS;
-			tmp = realloc(tokens, bufsize * sizeof(*tokens));
-			if (tmp == NULL)
-			{
-				free(tokens);
-				perror("allocation error");
-				exit(EXIT_FAILURE);
-			}
-			tokens = tmp;
-		}
+	while (token)
+	{
+		tokens[pos++] = token;
+		if (pos >= bufsize)
+			tokens = resize_token_buf(tokens, &bufsize);
 		token = strtok(NULL, delims);
 	}
-
-	tokens[position] = NULL;
+	tokens[pos] = NULL;
 	return (tokens);
 }
