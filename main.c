@@ -29,7 +29,7 @@ int main(void)
             continue;
 
         execute_cmd_02("hsh", tokens, line_no);
-        free_args(tokens);
+        free_argv(tokens);
         line_no++;
     }
 
