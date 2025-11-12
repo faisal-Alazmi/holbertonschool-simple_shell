@@ -11,6 +11,10 @@ int execute_cmd_02(char *progname, char **argv, int line_no)
     pid_t pid;
     int status;
 
+    /* Silence unused parameter warnings */
+    (void)progname;
+    (void)line_no;
+
     /* Handle built-in commands */
     builtin_status = handle_builtin(argv);
     if (builtin_status != -1)
