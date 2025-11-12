@@ -1,6 +1,19 @@
 #include "shell.h"
 
 /**
+ * run_child - executes the command in the child process
+ * @argv: argument vector
+ * @progname: program name
+ * @line_no: line number
+ */
+void run_child(char **argv, char *progname, int line_no)
+{
+	execve(argv[0], argv, environ);
+	perror(argv[0]);
+	_exit(126);
+}
+
+/**
  * execute_cmd_02 - executes a command with its arguments (no PATH)
  * @progname: program name used for error printing
  * @argv: command and arguments array
@@ -16,7 +29,6 @@ int execute_cmd_02(char *progname, char **argv, int line_no)
 	if (!argv || !argv[0])
 		return (0);
 
-	/* No PATH support yet - must contain '/' */
 	if (!strchr(argv[0], '/'))
 	{
 		print_nf_error(progname, line_no, argv[0]);
@@ -35,13 +47,8 @@ int execute_cmd_02(char *progname, char **argv, int line_no)
 		perror("fork");
 		return (1);
 	}
-
-	if (pid == 0)
-	{
-		execve(argv[0], argv, environ);
-		perror(argv[0]);
-		_exit(126);
-	}
+	else if (pid == 0)
+		run_child(argv, progname, line_no);
 
 	if (waitpid(pid, &status, 0) == -1)
 	{
