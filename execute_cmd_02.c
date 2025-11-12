@@ -1,47 +1,37 @@
-#include "shell.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 
-/**
- * execute_cmd_02 - Executes a command
- * @progname: Name of the shell program (argv[0])
- * @argv: Tokenized command/arguments
- * @line_no: Line number (for error printing)
- *
- * Return: 1 to continue the shell, 0 to exit
- */
-int execute_cmd_02(char *progname, char **argv, int line_no)
+int handle_builtin(char **args); // forward declaration
+
+void execute_cmd_02(char **args)
 {
-	pid_t pid;
-	int status;
-	char *path;
+    if (args == NULL || args[0] == NULL)
+        return;
 
-	/* Make sure builtins are defined before this function */
-	if (handle_builtin(argv) == 0)
-		return (0);
+    int builtin_status = handle_builtin(args);
 
-	path = find_path(argv[0]);
-	if (!path)
-	{
-		fprintf(stderr, "%s: %d: %s: not found\n", progname, line_no, argv[0]);
-		return (1);
-	}
+    if (builtin_status != -1)
+        return; // built-in executed
 
-	pid = fork();
-	if (pid == 0)
-	{
-		if (execve(path, argv, environ) == -1)
-		{
-			perror(progname);
-			free(path);
-			exit(EXIT_FAILURE);
-		}
-	}
-	else if (pid > 0)
-	{
-		waitpid(pid, &status, 0);
-		free(path);
-	}
-	else
-		perror(progname);
+    pid_t pid = fork();
 
-	return (1);
+    if (pid == -1)
+    {
+        perror("fork failed");
+        return;
+    }
+    else if (pid == 0) // child process
+    {
+        execvp(args[0], args);
+        perror("execvp failed"); // only reached if exec fails
+        exit(EXIT_FAILURE);
+    }
+    else // parent process
+    {
+        int status;
+        waitpid(pid, &status, 0);
+    }
 }
