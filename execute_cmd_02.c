@@ -16,7 +16,7 @@ static char *trim(char *str)
     while (*str && (*str == ' ' || *str == '\t'))
         str++;
 
-    if (*str == 0)
+    if (*str == '\0')
         return NULL;
 
     end = str + strlen(str) - 1;
@@ -27,19 +27,21 @@ static char *trim(char *str)
     return str;
 }
 
-/* Find full path for command — simplified for now */
+/* Placeholder for finding full command path */
 static char *find_command(char *command)
 {
     return command;
 }
 
-/**
- * execute_cmd_02 - execute a command or built-in
+/* Return codes:
+ * 0 = continue shell
+ * 1 = external command error
+ * 2 = exit shell
  */
 int execute_cmd_02(char *progname, char **argv, int line_no)
 {
     pid_t pid;
-    int status = 0;
+    int status;
     char *cmd;
     char *cmd_path;
 
@@ -50,11 +52,11 @@ int execute_cmd_02(char *progname, char **argv, int line_no)
     if (!cmd)
         return 0;
 
-    /* Built-in: exit */
+    /* Handle built-in exit */
     if (strcmp(cmd, "exit") == 0)
     {
-        /* Use last command's exit status if no argument */
-        exit(WIFEXITED(status) ? WEXITSTATUS(status) : status);
+        /* Do not print anything for exit without arguments */
+        return 2;  /* signal shell driver to exit */
     }
 
     cmd_path = find_command(cmd);
@@ -75,13 +77,13 @@ int execute_cmd_02(char *progname, char **argv, int line_no)
     {
         execvp(cmd_path, argv);
         write(2, "exec failed\n", 12);
-        _exit(127);
+        _exit(1);
     }
     else
     {
         waitpid(pid, &status, 0);
     }
 
-    return WIFEXITED(status) ? WEXITSTATUS(status) : status;
+    return 0;
 }
 
