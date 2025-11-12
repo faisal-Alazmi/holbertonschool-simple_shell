@@ -15,6 +15,20 @@ int execute_cmd_02(char *progname, char **argv, int line_no)
     (void)progname;
     (void)line_no;
 
+if (!cmd_path)
+{
+    fprintf(stderr, "%s: command not found\n", args[0]);
+    return;
+}
+
+execvpe(cmd_path, args, environ);
+
+/* If execvpe returns, there was an error */
+perror("execvpe");
+exit(EXIT_FAILURE);
+
+
+
     /* Handle built-in commands */
     builtin_status = handle_builtin(argv);
     if (builtin_status != -1)
