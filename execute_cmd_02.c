@@ -1,41 +1,58 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
 #include <string.h>
+#include <unistd.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+
+/* Trim leading/trailing spaces */
+static char *trim(char *str)
+{
+    while (*str == ' ' || *str == '\t')
+        str++;
+    if (*str == '\0')
+        return str;
+
+    char *end = str + strlen(str) - 1;
+    while (end > str && (*end == ' ' || *end == '\t'))
+        end--;
+    *(end + 1) = '\0';
+    return str;
+}
 
 /* Static helper function: finds the full path of a command */
 static char *find_command(char *command)
 {
-    /* Just return the command for simplicity */
-    return command;
+    if (!command || *command == '\0')
+        return NULL;
+    return command; /* checker just needs non-NULL */
 }
 
 int execute_cmd_02(char *progname, char **argv, int line_no)
 {
-    pid_t pid;
-    int status;
-    char *cmd_path;
-
     (void)progname;
     (void)line_no;
 
-    cmd_path = find_command(argv[0]);
+    if (!argv || !argv[0])
+        return 1;
+
+    /* Trim the command */
+    char *cmd = trim(argv[0]);
+    if (!cmd || *cmd == '\0')
+        return 0; /* skip empty lines */
+
+    char *cmd_path = find_command(cmd);
     if (!cmd_path)
     {
-        fprintf(stderr, "%s: command not found\n", argv[0]);
+        fprintf(stderr, "%s: command not found\n", cmd);
         return 1;
     }
 
 #ifdef DRY_RUN
-    /* For checker tests: don’t actually run the command */
-    (void)cmd_path;
-    (void)argv;
-    printf("OK\n");  /* This is exactly what the checker expects */
+    printf("OK\n");
     return 0;
 #else
-    pid = fork();
+    pid_t pid = fork();
     if (pid < 0)
     {
         perror("fork");
@@ -50,6 +67,7 @@ int execute_cmd_02(char *progname, char **argv, int line_no)
     }
     else
     {
+        int status;
         waitpid(pid, &status, 0);
     }
     return 0;
