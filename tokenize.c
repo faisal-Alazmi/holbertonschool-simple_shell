@@ -1,10 +1,8 @@
 #include "shell.h"
+#include <string.h>
+#include <stdlib.h>
 
-/**
- * _strdup - duplicate a C-string using malloc
- * @s: source string
- * Return: pointer to newly allocated copy, or NULL on failure
- */
+/* duplicate a C-string using malloc */
 static char *_strdup(const char *s)
 {
 	size_t len, i;
@@ -24,13 +22,7 @@ static char *_strdup(const char *s)
 	return (p);
 }
 
-/**
- * grow_argv - grow argv array capacity without using realloc
- * @argv: current array
- * @old_cap: current capacity
- * @new_cap: requested new capacity
- * Return: new pointer or NULL on failure (old one is preserved)
- */
+/* grow argv array capacity without using realloc */
 static char **grow_argv(char **argv, size_t old_cap, size_t new_cap)
 {
 	char **newv;
@@ -47,12 +39,46 @@ static char **grow_argv(char **argv, size_t old_cap, size_t new_cap)
 	return (newv);
 }
 
-/**
- * tokenize - split line into argv (space/tab separated)
- * @line: input string (will not be modified)
- *
- * Return: NULL-terminated argv array (heap-allocated), or NULL if empty/error
- */
+/* free a NULL-terminated argv array */
+void free_argv(char **argv)
+{
+	size_t j = 0;
+
+	if (!argv)
+		return;
+
+	while (argv[j])
+	{
+		free(argv[j]);
+		j++;
+	}
+	free(argv);
+}
+
+/* add token to argv array, grow if needed */
+static int add_token(char ***argv_ptr, size_t *cap, size_t *i, const char *tok)
+{
+	char **argv = *argv_ptr;
+
+	if (*i + 2 >= *cap)
+	{
+		char **tmp = grow_argv(argv, *cap, *cap * 2);
+		if (!tmp)
+			return (0);
+		argv = tmp;
+		*cap *= 2;
+		*argv_ptr = argv;
+	}
+
+	argv[*i] = _strdup(tok);
+	if (!argv[*i])
+		return (0);
+
+	(*i)++;
+	return (1);
+}
+
+/* split line into argv (space/tab separated) */
 char **tokenize(char *line)
 {
 	char *work, *tok;
@@ -76,28 +102,12 @@ char **tokenize(char *line)
 	tok = strtok(work, " \t");
 	while (tok)
 	{
-		if (i + 2 >= cap)
-		{
-			char **tmp = grow_argv(argv, cap, cap * 2);
-
-			if (!tmp)
-			{
-				free_argv(argv);
-				free(work);
-				return (NULL);
-			}
-			argv = tmp;
-			cap *= 2;
-		}
-
-		argv[i] = _strdup(tok);
-		if (!argv[i])
+		if (!add_token(&argv, &cap, &i, tok))
 		{
 			free_argv(argv);
 			free(work);
 			return (NULL);
 		}
-		i++;
 		tok = strtok(NULL, " \t");
 	}
 
@@ -110,23 +120,4 @@ char **tokenize(char *line)
 		return (NULL);
 	}
 	return (argv);
-}
-
-/**
- * free_argv - free a NULL-terminated argv array
- * @argv: array to free
- */
-void free_argv(char **argv)
-{
-	size_t j = 0;
-
-	if (!argv)
-		return;
-
-	while (argv[j])
-	{
-		free(argv[j]);
-		j++;
-	}
-	free(argv);
 }
