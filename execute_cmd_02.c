@@ -5,9 +5,10 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 
-/* Function prototype for a helper function that finds the command path */
+/* Function prototype for helper */
 char *find_command(char *command);
 
+/* Execute command */
 int execute_cmd_02(char *progname, char **argv, int line_no)
 {
     pid_t pid;
@@ -44,10 +45,45 @@ int execute_cmd_02(char *progname, char **argv, int line_no)
     }
     else
     {
-        /* Parent process */
+        /* Parent process waits for child */
         waitpid(pid, &status, 0);
     }
 
     free(cmd_path); /* only if find_command allocates memory */
     return 0;
 }
+
+/* Simple find_command implementation */
+char *find_command(char *command)
+{
+    const char *paths[] = {"/bin", "/usr/bin", NULL};
+    char *full_path;
+    int i;
+
+    if (!command)
+        return NULL;
+
+    if (strchr(command, '/'))
+    {
+        /* Command contains /, assume full path */
+        if (access(command, X_OK) == 0)
+            return strdup(command);
+        else
+            return NULL;
+    }
+
+    for (i = 0; paths[i] != NULL; i++)
+    {
+        size_t len = strlen(paths[i]) + strlen(command) + 2;
+        full_path = malloc(len);
+        if (!full_path)
+            continue;
+        snprintf(full_path, len, "%s/%s", paths[i], command);
+        if (access(full_path, X_OK) == 0)
+            return full_path;
+        free(full_path);
+    }
+
+    return NULL; /* Not found */
+}
+
