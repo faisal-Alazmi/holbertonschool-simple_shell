@@ -5,9 +5,7 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 
-/**
- * trim - Remove leading and trailing spaces/tabs
- */
+/* Trim leading and trailing whitespace */
 static char *trim(char *str)
 {
     char *end;
@@ -18,7 +16,7 @@ static char *trim(char *str)
     while (*str && (*str == ' ' || *str == '\t'))
         str++;
 
-    if (*str == '\0')
+    if (*str == 0)
         return NULL;
 
     end = str + strlen(str) - 1;
@@ -29,24 +27,21 @@ static char *trim(char *str)
     return str;
 }
 
-/**
- * find_command - Placeholder: lets execvp search PATH
- */
+/* Find full path for command — simplified for now */
 static char *find_command(char *command)
 {
     return command;
 }
 
 /**
- * execute_cmd_02 - Execute command or built-in
+ * execute_cmd_02 - execute a command or built-in
  */
 int execute_cmd_02(char *progname, char **argv, int line_no)
 {
     pid_t pid;
-    int status;
+    int status = 0;
     char *cmd;
     char *cmd_path;
-    static int last_status = 0;
 
     (void)progname;
     (void)line_no;
@@ -55,18 +50,17 @@ int execute_cmd_02(char *progname, char **argv, int line_no)
     if (!cmd)
         return 0;
 
-    /* Built-in: exit (no arguments) */
+    /* Built-in: exit */
     if (strcmp(cmd, "exit") == 0)
     {
-        /* No output, just clean exit */
-        exit(last_status);
+        /* Use last command's exit status if no argument */
+        exit(WIFEXITED(status) ? WEXITSTATUS(status) : status);
     }
 
     cmd_path = find_command(cmd);
     if (!cmd_path)
     {
         fprintf(stderr, "%s: command not found\n", argv[0]);
-        last_status = 127;
         return 1;
     }
 
@@ -74,34 +68,20 @@ int execute_cmd_02(char *progname, char **argv, int line_no)
     if (pid < 0)
     {
         perror("fork");
-        last_status = 1;
         return 1;
     }
 
     if (pid == 0)
     {
         execvp(cmd_path, argv);
-        /* execvp failed */
-        perror(argv[0]);
+        write(2, "exec failed\n", 12);
         _exit(127);
     }
     else
     {
-        if (waitpid(pid, &status, 0) == -1)
-        {
-            perror("waitpid");
-            last_status = 1;
-        }
-        else if (WIFEXITED(status))
-        {
-            last_status = WEXITSTATUS(status);
-        }
-        else
-        {
-            last_status = 1;
-        }
+        waitpid(pid, &status, 0);
     }
 
-    return 0;
+    return WIFEXITED(status) ? WEXITSTATUS(status) : status;
 }
 
