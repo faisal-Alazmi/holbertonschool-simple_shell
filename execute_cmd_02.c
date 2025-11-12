@@ -5,7 +5,9 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 
-/* Trim leading and trailing whitespace */
+/**
+ * trim - Remove leading and trailing spaces/tabs
+ */
 static char *trim(char *str)
 {
     char *end;
@@ -13,14 +15,12 @@ static char *trim(char *str)
     if (!str)
         return NULL;
 
-    /* Trim leading spaces */
     while (*str && (*str == ' ' || *str == '\t'))
         str++;
 
     if (*str == '\0')
         return NULL;
 
-    /* Trim trailing spaces */
     end = str + strlen(str) - 1;
     while (end > str && (*end == ' ' || *end == '\t'))
         end--;
@@ -29,13 +29,17 @@ static char *trim(char *str)
     return str;
 }
 
-/* Finds the full path of a command (placeholder) */
+/**
+ * find_command - Placeholder: lets execvp search PATH
+ */
 static char *find_command(char *command)
 {
-    /* For simplicity, assume execvp handles PATH */
     return command;
 }
 
+/**
+ * execute_cmd_02 - Execute command or built-in
+ */
 int execute_cmd_02(char *progname, char **argv, int line_no)
 {
     pid_t pid;
@@ -51,9 +55,10 @@ int execute_cmd_02(char *progname, char **argv, int line_no)
     if (!cmd)
         return 0;
 
-    /* Handle built-in "exit" (no args) */
+    /* Built-in: exit (no arguments) */
     if (strcmp(cmd, "exit") == 0)
     {
+        /* No output, just clean exit */
         exit(last_status);
     }
 
@@ -76,8 +81,8 @@ int execute_cmd_02(char *progname, char **argv, int line_no)
     if (pid == 0)
     {
         execvp(cmd_path, argv);
-        /* If exec fails */
-        write(2, "exec failed\n", 12);
+        /* execvp failed */
+        perror(argv[0]);
         _exit(127);
     }
     else
@@ -87,12 +92,13 @@ int execute_cmd_02(char *progname, char **argv, int line_no)
             perror("waitpid");
             last_status = 1;
         }
+        else if (WIFEXITED(status))
+        {
+            last_status = WEXITSTATUS(status);
+        }
         else
         {
-            if (WIFEXITED(status))
-                last_status = WEXITSTATUS(status);
-            else
-                last_status = 1;
+            last_status = 1;
         }
     }
 
