@@ -17,7 +17,7 @@ static char *trim(char *str)
     while (*str && (*str == ' ' || *str == '\t'))
         str++;
 
-    if (*str == 0)
+    if (*str == 0)  /* empty string */
         return NULL;
 
     /* Trim trailing spaces */
@@ -29,15 +29,12 @@ static char *trim(char *str)
     return str;
 }
 
-/* Simplified find_command for empty PATH test */
+/* Finds the full path of a command */
 static char *find_command(char *command)
 {
-    /* If command contains '/', treat as path */
-    if (strchr(command, '/'))
-        return command;
-
-    /* PATH is empty, cannot find command */
-    return NULL;
+    /* For simplicity, just return the command itself */
+    /* Real implementation should search $PATH */
+    return command;
 }
 
 int execute_cmd_02(char *progname, char **argv, int line_no)
@@ -48,16 +45,17 @@ int execute_cmd_02(char *progname, char **argv, int line_no)
     char *cmd_path;
 
     (void)progname;
+    (void)line_no;
 
-    cmd = trim(argv[0]);
-    if (!cmd)
+    cmd = trim(argv[0]);  /* Trim whitespace */
+    if (!cmd)  /* Skip empty lines */
         return 0;
 
     cmd_path = find_command(cmd);
     if (!cmd_path)
     {
-        fprintf(stderr, "./hsh: %d: %s: not found\n", line_no, cmd);
-        return 127;
+        fprintf(stderr, "%s: command not found\n", argv[0]);
+        return 1;
     }
 
     pid = fork();
@@ -70,14 +68,10 @@ int execute_cmd_02(char *progname, char **argv, int line_no)
     if (pid == 0)
     {
         execvp(cmd_path, argv);
-        fprintf(stderr, "./hsh: %d: %s: exec failed\n", line_no, cmd);
+        write(2, "exec failed\n", 12);
         _exit(1);
     }
-
-    waitpid(pid, &status, 0);
-    if (WIFEXITED(status))
-        return WEXITSTATUS(status);
-
-    return 0;
-}
-
+    else
+    {
+        waitpid(pid, &status, 0);
+    }
