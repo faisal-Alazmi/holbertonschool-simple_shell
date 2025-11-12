@@ -59,12 +59,12 @@ int execute_cmd_02(char *progname, char **argv, int line_no)
         {
             /* Exit without argument, checker expects stdout "OK" */
             printf("OK\n");
-            return 2;  // signal shell driver to exit
+            return 2;  /* signal shell driver to exit */
         }
         else
         {
-            int exit_status = atoi(argv[1]);
-            return 2;  // pass exit status to shell driver
+            /* Exit with a status argument */
+            return 2;  /* signal shell driver to exit */
         }
     }
 
