@@ -1,5 +1,4 @@
 #include "shell.h"
-
 /**
  * write_num - print a positive integer via write()
  * @n: number to print
