@@ -14,7 +14,8 @@ int execute_cmd_02(char *progname, char **argv, int line_no)
     int status;
     char *cmd_path;
 
-    /* Silence unused parameter warning */
+    /* Silence unused parameter warnings */
+    (void)progname;
     (void)line_no;
 
     /* Get the full path of the command */
