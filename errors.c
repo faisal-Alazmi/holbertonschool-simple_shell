@@ -1,6 +1,7 @@
 #include "shell.h"
+
 /**
- * write_num - print a positive integer via write()
+ * write_num - prints a positive integer via write()
  * @n: number to print
  */
 static void write_num(int n)
@@ -11,13 +12,11 @@ static void write_num(int n)
 
 	if (n < 0)
 		write(STDERR_FILENO, "-", 1);
-
 	if (x == 0)
 	{
 		write(STDERR_FILENO, "0", 1);
 		return;
 	}
-
 	while (x > 0 && i < (int)sizeof(buf))
 	{
 		buf[i++] = (char)('0' + (x % 10));
@@ -31,7 +30,7 @@ static void write_num(int n)
  * print_error_prefix - writes "<prog>: <line>: <cmd>: "
  * @prog: program name
  * @line_no: current line number
- * @cmd: command name
+ * @cmd: command
  */
 static void print_error_prefix(const char *prog, int line_no, const char *cmd)
 {
@@ -46,7 +45,7 @@ static void print_error_prefix(const char *prog, int line_no, const char *cmd)
 /**
  * print_nf_error - prints "<prog>: <line>: <cmd>: not found"
  * @prog: program name
- * @line_no: current line number
+ * @line_no: line number
  * @cmd: command
  */
 void print_nf_error(const char *prog, int line_no, const char *cmd)
@@ -58,7 +57,7 @@ void print_nf_error(const char *prog, int line_no, const char *cmd)
 /**
  * print_noent_error - prints "<prog>: <line>: <cmd>: No such file or directory"
  * @prog: program name
- * @line_no: current line number
+ * @line_no: line number
  * @cmd: command
  */
 void print_noent_error(const char *prog, int line_no, const char *cmd)
