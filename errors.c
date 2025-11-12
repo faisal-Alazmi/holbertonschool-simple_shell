@@ -1,6 +1,9 @@
 #include "shell.h"
 
-/* write_num: print a positive integer via write() */
+/**
+ * write_num - print a positive integer via write()
+ * @n: number to print
+ */
 static void write_num(int n)
 {
 	char buf[20];
@@ -26,33 +29,41 @@ static void write_num(int n)
 }
 
 /**
- * print_nf_error - prints "<prog>: <line>: <cmd>: not found\n"
+ * print_error_prefix - writes "<prog>: <line>: <cmd>: "
  * @prog: program name
- * @line_no: line number
+ * @line_no: current line number
+ * @cmd: command name
+ */
+static void print_error_prefix(const char *prog, int line_no, const char *cmd)
+{
+	write(STDERR_FILENO, prog, strlen(prog));
+	write(STDERR_FILENO, ": ", 2);
+	write_num(line_no);
+	write(STDERR_FILENO, ": ", 2);
+	write(STDERR_FILENO, cmd, strlen(cmd));
+	write(STDERR_FILENO, ": ", 2);
+}
+
+/**
+ * print_nf_error - prints "<prog>: <line>: <cmd>: not found"
+ * @prog: program name
+ * @line_no: current line number
  * @cmd: command
  */
 void print_nf_error(const char *prog, int line_no, const char *cmd)
 {
-	write(STDERR_FILENO, prog, strlen(prog));
-	write(STDERR_FILENO, ": ", 2);
-	write_num(line_no);
-	write(STDERR_FILENO, ": ", 2);
-	write(STDERR_FILENO, cmd, strlen(cmd));
-	write(STDERR_FILENO, ": not found\n", 12);
+	print_error_prefix(prog, line_no, cmd);
+	write(STDERR_FILENO, "not found\n", 10);
 }
 
 /**
- * print_noent_error - prints "<prog>: <line>: <cmd>: No such file or directory\n"
+ * print_noent_error - prints "<prog>: <line>: <cmd>: No such file or directory"
  * @prog: program name
- * @line_no: line number
+ * @line_no: current line number
  * @cmd: command
  */
 void print_noent_error(const char *prog, int line_no, const char *cmd)
 {
-	write(STDERR_FILENO, prog, strlen(prog));
-	write(STDERR_FILENO, ": ", 2);
-	write_num(line_no);
-	write(STDERR_FILENO, ": ", 2);
-	write(STDERR_FILENO, cmd, strlen(cmd));
-	write(STDERR_FILENO, ": No such file or directory\n", 29);
+	print_error_prefix(prog, line_no, cmd);
+	write(STDERR_FILENO, "No such file or directory\n", 27);
 }
