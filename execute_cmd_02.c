@@ -75,3 +75,6 @@ int execute_cmd_02(char *progname, char **argv, int line_no)
     {
         waitpid(pid, &status, 0);
     }
+
+    return 0;
+}
