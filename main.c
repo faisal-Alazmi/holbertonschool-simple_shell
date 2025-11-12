@@ -1,6 +1,7 @@
 #include "shell.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 int main(void)
 {
@@ -12,8 +13,9 @@ int main(void)
 
     while (1)
     {
-        printf("$ ");
-        fflush(stdout);  /* Ensure prompt is printed immediately */
+        /* Print prompt only if stdin is a terminal */
+        if (isatty(STDIN_FILENO))
+            printf("$ ");
 
         read = getline(&line, &len, stdin);
         if (read == -1)
@@ -27,7 +29,7 @@ int main(void)
             continue;
 
         execute_cmd_02("hsh", tokens, line_no);
-        free_argv(tokens);
+        free_args(tokens);
         line_no++;
     }
 
