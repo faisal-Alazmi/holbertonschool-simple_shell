@@ -17,7 +17,7 @@ static char *trim(char *str)
     while (*str && (*str == ' ' || *str == '\t'))
         str++;
 
-    if (*str == 0)  /* empty string */
+    if (*str == 0) /* empty string */
         return NULL;
 
     /* Trim trailing spaces */
@@ -29,15 +29,12 @@ static char *trim(char *str)
     return str;
 }
 
-/* Finds the full path of a command */
+/* Finds the full path of a command (stub: just returns the command itself) */
 static char *find_command(char *command)
 {
-    /* For simplicity, just return the command itself */
-    /* Real implementation should search $PATH */
     return command;
 }
 
-/* Execute a command given as argv */
 int execute_cmd_02(char *progname, char **argv, int line_no)
 {
     pid_t pid;
@@ -48,10 +45,21 @@ int execute_cmd_02(char *progname, char **argv, int line_no)
     (void)progname;
     (void)line_no;
 
-    cmd = trim(argv[0]);  /* Trim whitespace */
-    if (!cmd)  /* Skip empty lines */
+    /* Trim whitespace from the command */
+    cmd = trim(argv[0]);
+    if (!cmd)
         return 0;
 
+    /* Handle built-in "exit" */
+    if (strcmp(cmd, "exit") == 0)
+    {
+        int exit_status = 0;
+        if (argv[1])
+            exit_status = atoi(argv[1]);
+        exit(exit_status);
+    }
+
+    /* Find the command path */
     cmd_path = find_command(cmd);
     if (!cmd_path)
     {
@@ -59,6 +67,7 @@ int execute_cmd_02(char *progname, char **argv, int line_no)
         return 1;
     }
 
+    /* Fork and execute the command */
     pid = fork();
     if (pid < 0)
     {
